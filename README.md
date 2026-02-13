@@ -29,6 +29,8 @@ Note: To check that you have correclty implemented your algorithm the following 
 	
 	M---QLIRHP
 
+OPG Note: I implemented this code with a linear penalty only. So, the alignment with -4 was to be of a score of 18 (as mentioned in Slack). No aligned sequences provided, so that was not checked in my code!
+
 
 [x] Ensure that it runs pytest
 
