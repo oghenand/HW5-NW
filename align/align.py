@@ -28,11 +28,13 @@ class NeedlemanWunsch:
     """
     def __init__(self, sub_matrix_file: str, gap_open: float, gap_extend: float):
         # Init alignment and gap matrices
+        #NOTE: ONLY _align_matrix used by me since prof. indicated linear penalty (requiring just one matrix) is sufficient
         self._align_matrix = None
         self._gapA_matrix = None
         self._gapB_matrix = None
 
         # Init matrices for backtrace procedure
+        #NOTE: ONLY _back used by me since prof. indicated linear penalty (requiring just one matrix) is sufficient
         self._back = None
         self._back_A = None
         self._back_B = None
@@ -128,12 +130,32 @@ class NeedlemanWunsch:
         
         # TODO: Initialize matrix private attributes for use in alignment
         # create matrices for alignment scores, gaps, and backtracing
-        pass
+        n = len(seqA) # length of sequence A
+        m = len(seqB) # length of sequence B
 
+        # initialize scoring matrix
+        self._align_matrix = np.zeros((m+1, n+1)) + float('-inf')
+        self._back = np.zeros((m+1,n+1), dtype=int)
         
         # TODO: Implement global alignment here
-        pass      		
-        		    
+        # fill out first column and row w gap penalties 
+        for i in range(m+1): # gaps in seqA
+            self._align_matrix[i][0] = self.gap_open * i
+        for j in range(n+1): # gaps in seqB
+            self._align_matrix[0][j] = self.gap_open * j
+        self._align_matrix[0][0] = 0
+
+        # fill out values
+        for i in range(1, m+1):
+            for j in range(1, n+1):
+                # calculate scores and take max
+                score1 = self._align_matrix[i-1][j-1] + self.sub_dict[(seqA[j-1], seqB[i-1])] # match/mismatch score (diag)
+                score2 = self._align_matrix[i-1][j] + self.gap_open # if gap in seqB (up)
+                score3 = self._align_matrix[i][j-1] + self.gap_open # if gap in seqB  (down)
+                all_scores = [score1, score2, score3]
+                self._align_matrix[i][j] = max(all_scores) # pick max
+                self._back[i][j] = all_scores.index(max(all_scores)) # 0 = diag, 1 = up, 2 = left
+    
         return self._backtrace()
 
     def _backtrace(self) -> Tuple[float, str, str]:
@@ -150,7 +172,32 @@ class NeedlemanWunsch:
          	(alignment score, seqA alignment, seqB alignment) : Tuple[float, str, str]
          		the score and corresponding strings for the alignment of seqA and seqB
         """
-        pass
+        # extract lens and start at bottom right corner of alignment
+        n = len(self._seqA)
+        m = len(self._seqB)
+        i, j = m, n
+
+        # init alignment_score with score at bottom corner
+        self.alignment_score = self._align_matrix[i][j]
+
+        # now backtrace w/ while loop!
+        while i > 0 or j > 0:
+            # case 1: if both > 0 and back_mat has 0: go diagonal (match/mismatch direction)
+            if i > 0 and j > 0 and self._back[i][j] == 0:
+                self.seqA_align = self._seqA[j-1] + self.seqA_align
+                self.seqB_align = self._seqB[i-1] + self.seqB_align
+                i-=1
+                j-=1
+            # case 2: if _back has 1 (go up) or j = 0 (no more!)
+            elif i > 0 and (j==0 or self._back[i][j] == 1):
+                self.seqA_align = '-' + self.seqA_align
+                self.seqB_align = self._seqB[i-1] + self.seqB_align
+                i -= 1
+            # case 3: if back has 2 (go left) or i = 0
+            else:
+                self.seqA_align = self._seqA[j-1] + self.seqA_align
+                self.seqB_align = '-' + self.seqB_align
+                j -=1
 
         return (self.alignment_score, self.seqA_align, self.seqB_align)
 
