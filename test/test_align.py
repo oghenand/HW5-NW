@@ -47,9 +47,8 @@ def test_nw_backtrace():
     nw = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", -4, -1)
     nw_alignment_score, seqA_aligned, seqB_aligned = nw.align(seq3, seq4)
 
+    #NOTE: aligned sequences not provided for new test case for linear penalty -- only alignment score provided on slack!
     assert nw_alignment_score==18, "got wrong alignment score!"
-    print('SeqA', seqA_aligned)
-    print('SeqB', seqB_aligned)
     # assert seqA_aligned = "MAVHQLIRRP", "got wrong sequence A aligned!"
     # assert seqB_aligned = "M---QLIRHP", "got wrong sequence B algined!"
 
