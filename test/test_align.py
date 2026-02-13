@@ -49,7 +49,7 @@ def test_nw_backtrace():
 
     assert nw_alignment_score==18, "got wrong alignment score!"
     print('SeqA', seqA_aligned)
-    print('SeqB'. seqB_aligned)
+    print('SeqB' seqB_aligned)
     # assert seqA_aligned = "MAVHQLIRRP", "got wrong sequence A aligned!"
     # assert seqB_aligned = "M---QLIRHP", "got wrong sequence B algined!"
 
